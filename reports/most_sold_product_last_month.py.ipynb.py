@@ -23,41 +23,6 @@
 
 # COMMAND ----------
 
-# DBTITLE 1,Query section
-# MAGIC %md
-# MAGIC ## Most Sold Product Query
-
-# COMMAND ----------
-
-# DBTITLE 1,Most sold product analysis
-# MAGIC %sql
-# MAGIC SELECT 
-# MAGIC     p.product_sku,
-# MAGIC     p.product_name,
-# MAGIC     p.category,
-# MAGIC     SUM(oi.quantity) AS total_quantity_sold,
-# MAGIC     COUNT(DISTINCT oi.order_id) AS number_of_orders,
-# MAGIC     SUM(oi.quantity * oi.unit_price) AS total_revenue,
-# MAGIC     ROUND(AVG(oi.unit_price), 2) AS avg_unit_price
-# MAGIC FROM workspace.olist_gold.fact_order_items oi
-# MAGIC JOIN workspace.olist_gold.fact_orders o 
-# MAGIC     ON oi.order_id = o.order_id
-# MAGIC JOIN workspace.olist_gold.dim_products p 
-# MAGIC     ON oi.product_sku = p.product_sku
-# MAGIC WHERE 
-# MAGIC     o.order_date >= DATE_SUB(CURRENT_DATE(), 30)
-# MAGIC     AND o.order_date < CURRENT_DATE()
-# MAGIC     AND o.order_status != 'Cancelled'
-# MAGIC     AND oi.item_status != 'Cancelled'
-# MAGIC GROUP BY 
-# MAGIC     p.product_sku, 
-# MAGIC     p.product_name, 
-# MAGIC     p.category
-# MAGIC ORDER BY total_quantity_sold DESC
-# MAGIC LIMIT 1;
-
-# COMMAND ----------
-
 # DBTITLE 1,Top 10 section
 # MAGIC %md
 # MAGIC ## Top 10 Most Sold Products
@@ -66,28 +31,33 @@
 
 # DBTITLE 1,Top 10 products
 # MAGIC %sql
+# MAGIC WITH monthly_sales AS (
+# MAGIC     SELECT 
+# MAGIC         oi.product_sku,
+# MAGIC         SUM(oi.quantity) AS total_quantity_sold,
+# MAGIC         COUNT(DISTINCT oi.order_id) AS number_of_orders,
+# MAGIC         SUM(oi.quantity * oi.unit_price) AS total_revenue
+# MAGIC     FROM workspace.olist_gold.fact_order_items oi
+# MAGIC     JOIN workspace.olist_gold.fact_orders o 
+# MAGIC         ON oi.order_id = o.order_id
+# MAGIC     WHERE 
+# MAGIC         o.order_date >= DATE_SUB(CURRENT_DATE(), 30)
+# MAGIC         AND o.order_date < CURRENT_DATE()
+# MAGIC         AND o.order_status != 'Cancelled'
+# MAGIC         AND oi.item_status != 'Cancelled'
+# MAGIC     GROUP BY oi.product_sku
+# MAGIC )
 # MAGIC SELECT 
 # MAGIC     p.product_sku,
 # MAGIC     p.product_name,
 # MAGIC     p.category,
-# MAGIC     SUM(oi.quantity) AS total_quantity_sold,
-# MAGIC     COUNT(DISTINCT oi.order_id) AS number_of_orders,
-# MAGIC     SUM(oi.quantity * oi.unit_price) AS total_revenue
-# MAGIC FROM workspace.olist_gold.fact_order_items oi
-# MAGIC JOIN workspace.olist_gold.fact_orders o 
-# MAGIC     ON oi.order_id = o.order_id
+# MAGIC     s.total_quantity_sold,
+# MAGIC     s.number_of_orders,
+# MAGIC     s.total_revenue
+# MAGIC FROM monthly_sales s
 # MAGIC JOIN workspace.olist_gold.dim_products p 
-# MAGIC     ON oi.product_sku = p.product_sku
-# MAGIC WHERE 
-# MAGIC     o.order_date >= DATE_SUB(CURRENT_DATE(), 30)
-# MAGIC     AND o.order_date < CURRENT_DATE()
-# MAGIC     AND o.order_status != 'Cancelled'
-# MAGIC     AND oi.item_status != 'Cancelled'
-# MAGIC GROUP BY 
-# MAGIC     p.product_sku, 
-# MAGIC     p.product_name, 
-# MAGIC     p.category
-# MAGIC ORDER BY total_quantity_sold DESC
+# MAGIC     ON s.product_sku = p.product_sku
+# MAGIC ORDER BY s.total_quantity_sold DESC
 # MAGIC LIMIT 10;
 
 # COMMAND ----------
@@ -100,21 +70,30 @@
 
 # DBTITLE 1,Category breakdown
 # MAGIC %sql
+# MAGIC WITH monthly_item_sales AS (
+# MAGIC     SELECT 
+# MAGIC         oi.product_sku,
+# MAGIC         SUM(oi.quantity) AS quantity_sold,
+# MAGIC         COUNT(DISTINCT oi.order_id) AS num_orders,
+# MAGIC         SUM(oi.quantity * oi.unit_price) AS revenue
+# MAGIC     FROM workspace.olist_gold.fact_order_items oi
+# MAGIC     JOIN workspace.olist_gold.fact_orders o 
+# MAGIC         ON oi.order_id = o.order_id
+# MAGIC     WHERE 
+# MAGIC         o.order_date >= DATE_SUB(CURRENT_DATE(), 30)
+# MAGIC         AND o.order_date < CURRENT_DATE()
+# MAGIC         AND o.order_status != 'Cancelled'
+# MAGIC         AND oi.item_status != 'Cancelled'
+# MAGIC     GROUP BY oi.product_sku
+# MAGIC )
 # MAGIC SELECT 
 # MAGIC     p.category,
-# MAGIC     SUM(oi.quantity) AS total_quantity_sold,
+# MAGIC     SUM(s.quantity_sold) AS total_quantity_sold,
 # MAGIC     COUNT(DISTINCT p.product_sku) AS distinct_products,
-# MAGIC     COUNT(DISTINCT oi.order_id) AS number_of_orders,
-# MAGIC     SUM(oi.quantity * oi.unit_price) AS total_revenue
-# MAGIC FROM workspace.olist_gold.fact_order_items oi
-# MAGIC JOIN workspace.olist_gold.fact_orders o 
-# MAGIC     ON oi.order_id = o.order_id
+# MAGIC     SUM(s.num_orders) AS number_of_orders,
+# MAGIC     SUM(s.revenue) AS total_revenue
+# MAGIC FROM monthly_item_sales s
 # MAGIC JOIN workspace.olist_gold.dim_products p 
-# MAGIC     ON oi.product_sku = p.product_sku
-# MAGIC WHERE 
-# MAGIC     o.order_date >= DATE_SUB(CURRENT_DATE(), 30)
-# MAGIC     AND o.order_date < CURRENT_DATE()
-# MAGIC     AND o.order_status != 'Cancelled'
-# MAGIC     AND oi.item_status != 'Cancelled'
+# MAGIC     ON s.product_sku = p.product_sku
 # MAGIC GROUP BY p.category
 # MAGIC ORDER BY total_quantity_sold DESC;

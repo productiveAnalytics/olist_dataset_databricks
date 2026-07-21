@@ -18,52 +18,9 @@
 
 # COMMAND ----------
 
-# DBTITLE 1,Query 1 Header
-# MAGIC %md
-# MAGIC ## Query 1: Most Sold Product (Last Month)
-# MAGIC
-# MAGIC Filters:
-# MAGIC * Last 30 days (excluding today)
-# MAGIC * Non-cancelled orders only
-# MAGIC * Items in any status EXCEPT 'Cancelled' (includes Initial, Shipped, Delivered)
-# MAGIC * **Current versions only** (`__CURRENT = TRUE`)
-
-# COMMAND ----------
-
-# DBTITLE 1,Most sold product last month
-# MAGIC %sql
-# MAGIC SELECT 
-# MAGIC     p.product_sku,
-# MAGIC     p.product_name,
-# MAGIC     p.category,
-# MAGIC     SUM(oi.quantity) AS total_quantity_sold,
-# MAGIC     COUNT(DISTINCT oi.order_id) AS number_of_orders,
-# MAGIC     SUM(oi.quantity * oi.unit_price) AS total_revenue,
-# MAGIC     ROUND(AVG(oi.unit_price), 2) AS avg_unit_price
-# MAGIC FROM workspace.olist_gold_dlt.fact_order_items oi
-# MAGIC JOIN workspace.olist_gold_dlt.fact_orders o 
-# MAGIC     ON oi.order_id = o.order_id
-# MAGIC     AND o.__CURRENT = TRUE  -- Critical: Only current order versions
-# MAGIC JOIN workspace.olist_gold_dlt.dim_products p 
-# MAGIC     ON oi.product_sku = p.product_sku
-# MAGIC WHERE 
-# MAGIC     oi.__CURRENT = TRUE  -- Critical: Only current item versions
-# MAGIC     AND o.order_date >= DATE_SUB(CURRENT_DATE(), 30)
-# MAGIC     AND o.order_date < CURRENT_DATE()
-# MAGIC     AND o.order_status != 'Cancelled'
-# MAGIC     AND oi.item_status != 'Cancelled'
-# MAGIC GROUP BY 
-# MAGIC     p.product_sku, 
-# MAGIC     p.product_name, 
-# MAGIC     p.category
-# MAGIC ORDER BY total_quantity_sold DESC
-# MAGIC LIMIT 1;
-
-# COMMAND ----------
-
 # DBTITLE 1,Query 2 Header
 # MAGIC %md
-# MAGIC ## Query 2: Top 10 Products by Quantity (Last Month)
+# MAGIC ## Top 10 Products by Quantity (Last Month)
 # MAGIC
 # MAGIC Same filters as Query 1, showing top 10 products.
 
@@ -71,38 +28,44 @@
 
 # DBTITLE 1,Top 10 products
 # MAGIC %sql
+# MAGIC WITH monthly_sales AS (
+# MAGIC     SELECT 
+# MAGIC         oi.product_sku,
+# MAGIC         SUM(oi.quantity) AS total_quantity_sold,
+# MAGIC         COUNT(DISTINCT oi.order_id) AS number_of_orders,
+# MAGIC         SUM(oi.quantity * oi.unit_price) AS total_revenue,
+# MAGIC         ROUND(AVG(oi.unit_price), 2) AS avg_unit_price
+# MAGIC     FROM workspace.olist_gold_dlt.fact_order_items oi
+# MAGIC     JOIN workspace.olist_gold_dlt.fact_orders o 
+# MAGIC         ON oi.order_id = o.order_id
+# MAGIC         AND o.__CURRENT = TRUE  -- SCD Type 2: current order versions only
+# MAGIC     WHERE 
+# MAGIC         oi.__CURRENT = TRUE  -- SCD Type 2: current item versions only
+# MAGIC         AND o.order_date >= DATE_SUB(CURRENT_DATE(), 30)
+# MAGIC         AND o.order_date < CURRENT_DATE()
+# MAGIC         AND o.order_status != 'Cancelled'
+# MAGIC         AND oi.item_status != 'Cancelled'
+# MAGIC     GROUP BY oi.product_sku
+# MAGIC )
 # MAGIC SELECT 
 # MAGIC     p.product_sku,
 # MAGIC     p.product_name,
 # MAGIC     p.category,
-# MAGIC     SUM(oi.quantity) AS total_quantity_sold,
-# MAGIC     COUNT(DISTINCT oi.order_id) AS number_of_orders,
-# MAGIC     SUM(oi.quantity * oi.unit_price) AS total_revenue,
-# MAGIC     ROUND(AVG(oi.unit_price), 2) AS avg_unit_price
-# MAGIC FROM workspace.olist_gold_dlt.fact_order_items oi
-# MAGIC JOIN workspace.olist_gold_dlt.fact_orders o 
-# MAGIC     ON oi.order_id = o.order_id
-# MAGIC     AND o.__CURRENT = TRUE
+# MAGIC     s.total_quantity_sold,
+# MAGIC     s.number_of_orders,
+# MAGIC     s.total_revenue,
+# MAGIC     s.avg_unit_price
+# MAGIC FROM monthly_sales s
 # MAGIC JOIN workspace.olist_gold_dlt.dim_products p 
-# MAGIC     ON oi.product_sku = p.product_sku
-# MAGIC WHERE 
-# MAGIC     oi.__CURRENT = TRUE
-# MAGIC     AND o.order_date >= DATE_SUB(CURRENT_DATE(), 30)
-# MAGIC     AND o.order_date < CURRENT_DATE()
-# MAGIC     AND o.order_status != 'Cancelled'
-# MAGIC     AND oi.item_status != 'Cancelled'
-# MAGIC GROUP BY 
-# MAGIC     p.product_sku, 
-# MAGIC     p.product_name, 
-# MAGIC     p.category
-# MAGIC ORDER BY total_quantity_sold DESC
+# MAGIC     ON s.product_sku = p.product_sku
+# MAGIC ORDER BY s.total_quantity_sold DESC
 # MAGIC LIMIT 10;
 
 # COMMAND ----------
 
 # DBTITLE 1,Query 3 Header
 # MAGIC %md
-# MAGIC ## Query 3: Sales Breakdown by Category (Last Month)
+# MAGIC ## Sales Breakdown by Category (Last Month)
 # MAGIC
 # MAGIC Aggregate sales by product category.
 
@@ -110,25 +73,35 @@
 
 # DBTITLE 1,Sales by category
 # MAGIC %sql
+# MAGIC WITH monthly_item_sales AS (
+# MAGIC     SELECT 
+# MAGIC         oi.product_sku,
+# MAGIC         SUM(oi.quantity) AS quantity_sold,
+# MAGIC         COUNT(DISTINCT oi.order_id) AS num_orders,
+# MAGIC         SUM(oi.quantity * oi.unit_price) AS revenue,
+# MAGIC         AVG(oi.unit_price) AS avg_price
+# MAGIC     FROM workspace.olist_gold_dlt.fact_order_items oi
+# MAGIC     JOIN workspace.olist_gold_dlt.fact_orders o 
+# MAGIC         ON oi.order_id = o.order_id
+# MAGIC         AND o.__CURRENT = TRUE  -- SCD Type 2: current order versions only
+# MAGIC     WHERE 
+# MAGIC         oi.__CURRENT = TRUE  -- SCD Type 2: current item versions only
+# MAGIC         AND o.order_date >= DATE_SUB(CURRENT_DATE(), 30)
+# MAGIC         AND o.order_date < CURRENT_DATE()
+# MAGIC         AND o.order_status != 'Cancelled'
+# MAGIC         AND oi.item_status != 'Cancelled'
+# MAGIC     GROUP BY oi.product_sku
+# MAGIC )
 # MAGIC SELECT 
 # MAGIC     p.category,
 # MAGIC     COUNT(DISTINCT p.product_sku) AS unique_products,
-# MAGIC     SUM(oi.quantity) AS total_quantity_sold,
-# MAGIC     COUNT(DISTINCT oi.order_id) AS number_of_orders,
-# MAGIC     SUM(oi.quantity * oi.unit_price) AS total_revenue,
-# MAGIC     ROUND(AVG(oi.unit_price), 2) AS avg_unit_price
-# MAGIC FROM workspace.olist_gold_dlt.fact_order_items oi
-# MAGIC JOIN workspace.olist_gold_dlt.fact_orders o 
-# MAGIC     ON oi.order_id = o.order_id
-# MAGIC     AND o.__CURRENT = TRUE
+# MAGIC     SUM(s.quantity_sold) AS total_quantity_sold,
+# MAGIC     SUM(s.num_orders) AS number_of_orders,
+# MAGIC     SUM(s.revenue) AS total_revenue,
+# MAGIC     ROUND(AVG(s.avg_price), 2) AS avg_unit_price
+# MAGIC FROM monthly_item_sales s
 # MAGIC JOIN workspace.olist_gold_dlt.dim_products p 
-# MAGIC     ON oi.product_sku = p.product_sku
-# MAGIC WHERE 
-# MAGIC     oi.__CURRENT = TRUE
-# MAGIC     AND o.order_date >= DATE_SUB(CURRENT_DATE(), 30)
-# MAGIC     AND o.order_date < CURRENT_DATE()
-# MAGIC     AND o.order_status != 'Cancelled'
-# MAGIC     AND oi.item_status != 'Cancelled'
+# MAGIC     ON s.product_sku = p.product_sku
 # MAGIC GROUP BY p.category
 # MAGIC ORDER BY total_revenue DESC;
 
