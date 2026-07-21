@@ -1,0 +1,12 @@
+order_id,customer_id,ordered_at,order_status,subtotal_amount,tax_amount,shipping_fee,total_amount,updated_at
+101,1001,2026-05-15 11:00:00 America/New_York,In-Progress,249.49,8.51,5.00,262.00,2026-05-28 13:00:00 America/New_York
+102,1002,2026-05-16 10:30:00 America/New_York,Complete,119.49,12.99,8.51,140.99,2026-05-31 10:00:00 America/New_York
+202,2020,2026-05-17 09:15:00 America/Los_Angeles,In-Progress,219.99,0.00,0.00,219.99,2026-05-19 19:55:00 America/Los_Angeles
+333,3000,2026-05-18 08:08:08 America/Denver,Initial,0.00,0.00,0.00,0.00,2026-05-18 08:00:00 America/Denver
+
+----
+
+335,3000,2026-06-01 14:00:00 America/Denver,Complete,0.00,0.00,0.00,0.00,2026-06-09 17:00:00 America/Denver
+400,4000,2026-05-30 16:15:00 America/Chicago,Cancelled,219.99,0.00,0.00,219.99,2026-06-05 22:22:22 America/Chicago
+444,4040,2026-06-20 10:00:00 America/New_York,Initial,105.97,4.03,10.50,120.50,2026-06-20 10:00:00 America/New_York
+500,5000,2026-06-21 15:30:00 UTC,Complete,199.99,20.01,50.49,270.49,2026-06-23 18:00:00 UTC
