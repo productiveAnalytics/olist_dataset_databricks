@@ -1,0 +1,9 @@
+type,status,order
+item,Cancelled,0
+item,Initial,1000
+item,Shipped,2000
+item,Delivered,3000
+order,Cancelled,0
+order,Initial,10
+order,In-Progress,20
+order,Complete,30
