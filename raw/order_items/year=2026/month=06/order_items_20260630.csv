@@ -1,0 +1,8 @@
+order_item_id,order_id,product_sku,quantity,discount_applied,line_amount,item_status,updated_at
+11,335,100-01,1,0.00,25.99,Delivered,2026-06-09 17:00:00 America/Denver
+12,400,200-01,1,0.00,69.49,Cancelled,2026-06-05 22:22:22 America/Chicago
+13,444,500-05,1,0.00,49.99,Initial,2026-06-20 10:00:00 America/New_York
+14,444,400-04,1,0.00,29.99,Initial,2026-06-20 10:00:00 America/New_York
+15,444,100-01,1,0.00,25.99,Initial,2026-06-20 10:00:00 America/New_York
+16,500,100-03,2,0.00,119.98,Cancelled,2026-06-23 15:30:00 UTC
+17,500,100-02,1,0.00,199.99,Delivered,2026-06-22 15:30:00 UTC

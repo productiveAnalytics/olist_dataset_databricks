@@ -1,0 +1,11 @@
+order_item_id,order_id,product_sku,quantity,discount_applied,line_amount,item_status,updated_at
+1,101,100-01,1,0.99,25.00,Shipped,2026-05-21 14:30:00 America/New_York
+2,101,100-02,1,49.99,150.00,Shipped,2026-05-20 11:00:00 America/New_York
+3,101,300-01,2,4.09,35.50,Initial,2026-05-15 11:00:00 America/New_York
+4,101,400-04,1,0.00,29.99,Delivered,2026-05-28 13:00:00 America/New_York
+5,102,100-01,2,1.98,50.00,Delivered,2026-05-18 14:30:00 America/New_York
+6,102,200-01,1,0.00,69.49,Delivered,2026-05-31 10:00:00 America/New_York
+7,202,200-01,1,0.00,69.49,Shipped,2026-05-19 19:55:00 America/Los_Angeles
+8,202,200-02,2,39.98,150,Initial,2026-05-17 09:15:00 America/Los_Angeles
+9,333,300-01,1,0.00,39.59,Initial,2026-05-18 08:08:08 America/Denver
+10,400,100-01,1,0.00,25.99,Cancelled,2026-05-31 20:20:00 America/Chicago
