@@ -10,9 +10,11 @@
 # MAGIC - `__END_AT` - Timestamp when this version became inactive (NULL for current version)
 # MAGIC - `__CURRENT` - Boolean flag (TRUE for current version, FALSE for historical)
 # MAGIC
-# MAGIC **Tables with SCD Type 2:**
-# MAGIC - `workspace.olist_gold.fact_orders`
-# MAGIC - `workspace.olist_gold.fact_order_items`
+# MAGIC **Tables with SCD Type 2 (DLT Schema):**
+# MAGIC - `workspace.olist_gold_dlt.fact_orders`
+# MAGIC - `workspace.olist_gold_dlt.fact_order_items`
+# MAGIC
+# MAGIC **Note:** The DLT pipeline writes to `olist_gold_dlt` schema to run side-by-side with the standard gold layer (`olist_gold`).
 
 # COMMAND ----------
 
@@ -34,7 +36,7 @@
 # MAGIC   order_status,
 # MAGIC   total_amount,
 # MAGIC   updated_at
-# MAGIC FROM workspace.olist_gold.fact_orders
+# MAGIC FROM workspace.olist_gold_dlt.fact_orders
 # MAGIC WHERE __CURRENT = TRUE
 # MAGIC ORDER BY order_date DESC
 # MAGIC LIMIT 10;
@@ -52,7 +54,7 @@
 # MAGIC   unit_price,
 # MAGIC   item_status,
 # MAGIC   updated_at
-# MAGIC FROM workspace.olist_gold.fact_order_items
+# MAGIC FROM workspace.olist_gold_dlt.fact_order_items
 # MAGIC WHERE __CURRENT = TRUE
 # MAGIC LIMIT 10;
 
@@ -80,7 +82,7 @@
 # MAGIC     WHEN __CURRENT = TRUE THEN 'Current Version'
 # MAGIC     ELSE 'Historical Version'
 # MAGIC   END AS version_type
-# MAGIC FROM workspace.olist_gold.fact_orders
+# MAGIC FROM workspace.olist_gold_dlt.fact_orders
 # MAGIC WHERE order_id = 1
 # MAGIC ORDER BY __START_AT;
 
@@ -97,7 +99,7 @@
 # MAGIC   __START_AT AS status_changed_at,
 # MAGIC   __END_AT AS status_valid_until,
 # MAGIC   __CURRENT AS is_current
-# MAGIC FROM workspace.olist_gold.fact_order_items
+# MAGIC FROM workspace.olist_gold_dlt.fact_order_items
 # MAGIC WHERE order_item_id = 1
 # MAGIC ORDER BY __START_AT;
 
@@ -122,7 +124,7 @@
 # MAGIC   total_amount,
 # MAGIC   __START_AT AS valid_from,
 # MAGIC   __END_AT AS valid_to
-# MAGIC FROM workspace.olist_gold.fact_orders
+# MAGIC FROM workspace.olist_gold_dlt.fact_orders
 # MAGIC WHERE 
 # MAGIC   __START_AT <= '2026-07-01'
 # MAGIC   AND (__END_AT > '2026-07-01' OR __END_AT IS NULL)
@@ -149,11 +151,11 @@
 # MAGIC     COUNT(DISTINCT oi.order_id) AS number_of_orders,
 # MAGIC     SUM(oi.quantity * oi.unit_price) AS total_revenue,
 # MAGIC     ROUND(AVG(oi.unit_price), 2) AS avg_unit_price
-# MAGIC FROM workspace.olist_gold.fact_order_items oi
-# MAGIC JOIN workspace.olist_gold.fact_orders o 
+# MAGIC FROM workspace.olist_gold_dlt.fact_order_items oi
+# MAGIC JOIN workspace.olist_gold_dlt.fact_orders o 
 # MAGIC     ON oi.order_id = o.order_id
 # MAGIC     AND o.__CURRENT = TRUE  -- Only current order versions
-# MAGIC JOIN workspace.olist_gold.dim_products p 
+# MAGIC JOIN workspace.olist_gold_dlt.dim_products p 
 # MAGIC     ON oi.product_sku = p.product_sku
 # MAGIC WHERE 
 # MAGIC     oi.__CURRENT = TRUE  -- Only current item versions

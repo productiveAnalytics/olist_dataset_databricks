@@ -3,9 +3,11 @@
 # MAGIC %md
 # MAGIC # Gold Layer Implementation - Two Approaches
 # MAGIC
-# MAGIC This project implements the gold layer using two different approaches:
+# MAGIC This project implements the gold layer using two different approaches that can run **side-by-side** for comparison:
 # MAGIC
 # MAGIC ## 1. Standard Delta Tables (Current Implementation)
+# MAGIC **Target Schema:** `workspace.olist_gold`
+# MAGIC
 # MAGIC **Notebooks:** `gold_dataset__dim_*.py.ipynb`, `gold_dataset__fact_*.py.ipynb`
 # MAGIC
 # MAGIC **Characteristics:**
@@ -22,6 +24,8 @@
 # MAGIC - Debugging/development phase
 # MAGIC
 # MAGIC ## 2. DLT Pipeline with SCD Patterns (Advanced)
+# MAGIC **Target Schema:** `workspace.olist_gold_dlt`
+# MAGIC
 # MAGIC **Notebooks:** `gold_layer_dlt_pipeline.py.ipynb`, `query_scd_type2_tables.py.ipynb`
 # MAGIC
 # MAGIC **Characteristics:**
@@ -130,7 +134,7 @@
 # MAGIC %md
 # MAGIC ## Query Differences
 # MAGIC
-# MAGIC ### Standard Delta Tables
+# MAGIC ### Standard Delta Tables (workspace.olist_gold)
 # MAGIC ```sql
 # MAGIC -- Simple - no version filtering needed
 # MAGIC SELECT order_id, order_status, total_amount
@@ -138,18 +142,18 @@
 # MAGIC WHERE order_date >= '2026-07-01';
 # MAGIC ```
 # MAGIC
-# MAGIC ### DLT with SCD Type 2
+# MAGIC ### DLT with SCD Type 2 (workspace.olist_gold_dlt)
 # MAGIC ```sql
 # MAGIC -- Must filter for current versions
 # MAGIC SELECT order_id, order_status, total_amount
-# MAGIC FROM workspace.olist_gold.fact_orders
+# MAGIC FROM workspace.olist_gold_dlt.fact_orders
 # MAGIC WHERE order_date >= '2026-07-01'
 # MAGIC   AND __CURRENT = TRUE;  -- Critical!
 # MAGIC
 # MAGIC -- Can query history
 # MAGIC SELECT order_id, order_status, 
 # MAGIC        __START_AT, __END_AT
-# MAGIC FROM workspace.olist_gold.fact_orders
+# MAGIC FROM workspace.olist_gold_dlt.fact_orders
 # MAGIC WHERE order_id = 123
 # MAGIC ORDER BY __START_AT;  -- See all versions
 # MAGIC ```
@@ -160,24 +164,25 @@
 # MAGIC %md
 # MAGIC ## File Reference
 # MAGIC
-# MAGIC ### Standard Delta Approach
+# MAGIC ### Standard Delta Approach → `workspace.olist_gold`
 # MAGIC * `gold_dataset__dim_customers.py.ipynb` - Customer dimension
 # MAGIC * `gold_dataset__dim_products.py.ipynb` - Product dimension
 # MAGIC * `gold_dataset__fact_orders.py.ipynb` - Order facts
 # MAGIC * `gold_dataset__fact_order_items.py.ipynb` - Order item facts
 # MAGIC * `reports/most_sold_product_last_month.py.ipynb` - Sample report
 # MAGIC
-# MAGIC ### DLT Approach
+# MAGIC ### DLT Approach → `workspace.olist_gold_dlt`
 # MAGIC * `gold_layer_dlt_pipeline.py.ipynb` - Main DLT pipeline (deploy as pipeline)
 # MAGIC * `query_scd_type2_tables.py.ipynb` - Query examples and best practices
 # MAGIC * `README_gold_layer_approaches.py.ipynb` - This guide
 # MAGIC
 # MAGIC ### Next Steps
 # MAGIC 1. Review both implementations
-# MAGIC 2. Choose approach based on requirements
+# MAGIC 2. **Both can run simultaneously** - different target schemas allow side-by-side comparison
 # MAGIC 3. For DLT: Create a Delta Live Tables pipeline in Databricks UI
 # MAGIC 4. Add the `gold_layer_dlt_pipeline.py.ipynb` notebook to the pipeline
-# MAGIC 5. Configure target schema as `workspace.olist_gold`
+# MAGIC 5. Configure target schema as `workspace.olist_gold_dlt`
+# MAGIC 6. Compare results: Query `olist_gold` for standard approach, `olist_gold_dlt` for DLT approach
 
 # COMMAND ----------
 

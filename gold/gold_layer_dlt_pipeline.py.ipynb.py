@@ -3,6 +3,8 @@
 # MAGIC %md
 # MAGIC # Gold Layer - DLT Pipeline with SCD Patterns
 # MAGIC
+# MAGIC **Target Schema:** `workspace.olist_gold_dlt`
+# MAGIC
 # MAGIC This DLT pipeline implements the gold layer star schema with:
 # MAGIC
 # MAGIC **SCD Type 1 (Current State Only):**
@@ -38,7 +40,7 @@ from pyspark.sql.functions import col, concat, lit, to_date, current_timestamp, 
 # DBTITLE 1,dim_customers with SCD Type 1
 @dlt.table(
     name="dim_customers",
-    comment="Customer dimension with SCD Type 1 (current state only)",
+    comment="Customer dimension with SCD Type 1 (current state only). Target: workspace.olist_gold_dlt.dim_customers",
     table_properties={
         "quality": "gold",
         "pipelines.autoOptimize.managed": "true"
@@ -67,7 +69,7 @@ def dim_customers():
 # DBTITLE 1,dim_products with SCD Type 1
 @dlt.table(
     name="dim_products",
-    comment="Product dimension with SCD Type 1 (current state only)",
+    comment="Product dimension with SCD Type 1 (current state only). Target: workspace.olist_gold_dlt.dim_products",
     table_properties={
         "quality": "gold",
         "pipelines.autoOptimize.managed": "true"
@@ -129,7 +131,7 @@ def fact_orders_staging():
 # Apply SCD Type 2 for fact_orders
 dlt.create_streaming_table(
     name="fact_orders",
-    comment="Order fact table with SCD Type 2 (historical tracking)",
+    comment="Order fact table with SCD Type 2 (historical tracking). Target: workspace.olist_gold_dlt.fact_orders",
     table_properties={
         "quality": "gold",
         "pipelines.autoOptimize.managed": "true"
@@ -178,7 +180,7 @@ def fact_order_items_staging():
 # Apply SCD Type 2 for fact_order_items
 dlt.create_streaming_table(
     name="fact_order_items",
-    comment="Order items fact table with SCD Type 2 (historical tracking)",
+    comment="Order items fact table with SCD Type 2 (historical tracking). Target: workspace.olist_gold_dlt.fact_order_items",
     table_properties={
         "quality": "gold",
         "pipelines.autoOptimize.managed": "true"
