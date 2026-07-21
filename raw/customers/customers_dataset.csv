@@ -1,0 +1,12 @@
+customer_id,first_name,last_name,email,zipcode,created_at,deleted_at
+1001,Matthew,Turner,matt.turner@nyu.edu,10001,2021-01-15 13:52:00 America/New_York,
+1002,Christy,Pulisic,mailto_christypulisis@columbia.edu,10016,2023-03-25 09:45:55 America/New_York,
+1111,Jennie,Lake,jenlake@aol.com,10101,2022-07-10 11:30:00 America/New_York,2026-07-04 11:30:00 America/New_York
+2020,Emili,Martinez,dibu_martinez@fifa.com,94305,2020-05-20 14:15:00 America/Los_Angeles,
+2021,Lionel,Messer,message_to_messer@soccer.com,94050,2024-12-25 14:15:00 America/Los_Angeles,
+2222,Alex,Morgan,alexmorgan@lapd.com,90001,2023-11-11 10:00:00 America/Los_Angeles,2025-01-01 10:00:00 America/Los_Angeles
+3000,Serena,Will,swill@palantir.com,80205,2021-09-15 08:00:00 America/Denver,
+3001,Roger,Fed,roger@fed.com,80201,2022-02-20 12:00:00 America/Denver,
+4000,Sachin,Tendulkar,sach@cricket.com,37130,2021-10-10 15:30:00 America/Chicago,
+4040,Veer,Koli,viru@virus.org,37130,2024-02-29 23:59:59 America/Chicago,
+5000,Phunsukh,Wangdu,phunsukh.wangdu@tibet.gov,10001,2021-01-15 13:52:00 UTC,
