@@ -16,6 +16,7 @@
 # MAGIC - High-level order metadata
 # MAGIC - Only non-cancelled orders (cancelled orders excluded from gold layer)
 # MAGIC - Order date extracted from ordered_at timestamp
+# MAGIC - Year and month columns carried from silver for efficient filtering and partitioning
 
 # COMMAND ----------
 
@@ -66,7 +67,7 @@ table__gold__fact_orders = f"{CATALOG_NAME}.{SCHEMA_NAME__GOLD}.fact_orders"
 
 orders_active_df = spark.table(table__silver__orders_active)
 
-# Transform: Extract order date and select required columns
+# Transform: Extract order date and select required columns including year/month for partitioning
 fact_orders_df = orders_active_df \
   .select(
     col("order_id"),
@@ -74,14 +75,17 @@ fact_orders_df = orders_active_df \
     to_date(col("ordered_at")).alias("order_date"),
     col("order_status"),
     col("total_amount"),
-    col("updated_at")
+    col("updated_at"),
+    col("order_year"),    # Carried from silver for efficient filtering
+    col("order_month")    # Carried from silver for efficient filtering
   )
 
 print(f"Active orders: {fact_orders_df.count()}")
 
-# Write to gold layer
+# Write to gold layer with partitioning by year and month
 fact_orders_df.write.format("delta") \
   .mode("overwrite") \
+  .partitionBy("order_year", "order_month") \
   .saveAsTable(table__gold__fact_orders)
 
 print(f"✓ Created {table__gold__fact_orders}")

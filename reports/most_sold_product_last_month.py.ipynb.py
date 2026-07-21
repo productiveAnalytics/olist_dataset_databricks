@@ -97,3 +97,102 @@
 # MAGIC     ON s.product_sku = p.product_sku
 # MAGIC GROUP BY p.category
 # MAGIC ORDER BY total_quantity_sold DESC;
+
+# COMMAND ----------
+
+# DBTITLE 1,Optimized Query Section
+# MAGIC %md
+# MAGIC ---
+# MAGIC ## Optimized Queries Using Year/Month Partitioning
+# MAGIC
+# MAGIC **New Columns:** `order_year` and `order_month` added to `fact_orders`
+# MAGIC
+# MAGIC **Benefits:**
+# MAGIC - **Partition Pruning**: Database can skip entire partitions when filtering
+# MAGIC - **Faster Queries**: Especially on large datasets with time-based partitions
+# MAGIC - **Integer Comparison**: Year/month comparisons are more efficient than date ranges
+# MAGIC
+# MAGIC **Use Case:** When querying for a specific calendar month (e.g., "previous month" or "June 2026")
+# MAGIC
+# MAGIC **Note:** For rolling windows like "last 30 days", the original `order_date` range filter is still appropriate.
+
+# COMMAND ----------
+
+# DBTITLE 1,Optimized: Previous month top products
+# MAGIC %sql
+# MAGIC -- Optimized query for PREVIOUS CALENDAR MONTH using year/month columns
+# MAGIC WITH previous_month AS (
+# MAGIC     SELECT 
+# MAGIC         YEAR(ADD_MONTHS(CURRENT_DATE(), -1)) AS prev_year,
+# MAGIC         MONTH(ADD_MONTHS(CURRENT_DATE(), -1)) AS prev_month
+# MAGIC ),
+# MAGIC monthly_sales_optimized AS (
+# MAGIC     SELECT 
+# MAGIC         oi.product_sku,
+# MAGIC         SUM(oi.quantity) AS total_quantity_sold,
+# MAGIC         COUNT(DISTINCT oi.order_id) AS number_of_orders,
+# MAGIC         SUM(oi.quantity * oi.unit_price) AS total_revenue
+# MAGIC     FROM workspace.olist_gold.fact_order_items oi
+# MAGIC     JOIN workspace.olist_gold.fact_orders o 
+# MAGIC         ON oi.order_id = o.order_id
+# MAGIC     CROSS JOIN previous_month pm
+# MAGIC     WHERE 
+# MAGIC         -- Partition pruning: uses year/month columns for efficient filtering
+# MAGIC         o.order_year = pm.prev_year
+# MAGIC         AND o.order_month = pm.prev_month
+# MAGIC         AND o.order_status != 'Cancelled'
+# MAGIC         AND oi.item_status != 'Cancelled'
+# MAGIC     GROUP BY oi.product_sku
+# MAGIC )
+# MAGIC SELECT 
+# MAGIC     p.product_sku,
+# MAGIC     p.product_name,
+# MAGIC     p.category,
+# MAGIC     s.total_quantity_sold,
+# MAGIC     s.number_of_orders,
+# MAGIC     s.total_revenue
+# MAGIC FROM monthly_sales_optimized s
+# MAGIC JOIN workspace.olist_gold.dim_products p 
+# MAGIC     ON s.product_sku = p.product_sku
+# MAGIC ORDER BY s.total_quantity_sold DESC
+# MAGIC LIMIT 10;
+
+# COMMAND ----------
+
+# DBTITLE 1,Optimized: Previous month category sales
+# MAGIC %sql
+# MAGIC -- Optimized query for PREVIOUS CALENDAR MONTH sales by category
+# MAGIC WITH previous_month AS (
+# MAGIC     SELECT 
+# MAGIC         YEAR(ADD_MONTHS(CURRENT_DATE(), -1)) AS prev_year,
+# MAGIC         MONTH(ADD_MONTHS(CURRENT_DATE(), -1)) AS prev_month
+# MAGIC ),
+# MAGIC monthly_item_sales_optimized AS (
+# MAGIC     SELECT 
+# MAGIC         oi.product_sku,
+# MAGIC         SUM(oi.quantity) AS quantity_sold,
+# MAGIC         COUNT(DISTINCT oi.order_id) AS num_orders,
+# MAGIC         SUM(oi.quantity * oi.unit_price) AS revenue
+# MAGIC     FROM workspace.olist_gold.fact_order_items oi
+# MAGIC     JOIN workspace.olist_gold.fact_orders o 
+# MAGIC         ON oi.order_id = o.order_id
+# MAGIC     CROSS JOIN previous_month pm
+# MAGIC     WHERE 
+# MAGIC         -- Partition pruning: uses year/month columns for efficient filtering
+# MAGIC         o.order_year = pm.prev_year
+# MAGIC         AND o.order_month = pm.prev_month
+# MAGIC         AND o.order_status != 'Cancelled'
+# MAGIC         AND oi.item_status != 'Cancelled'
+# MAGIC     GROUP BY oi.product_sku
+# MAGIC )
+# MAGIC SELECT 
+# MAGIC     p.category,
+# MAGIC     SUM(s.quantity_sold) AS total_quantity_sold,
+# MAGIC     COUNT(DISTINCT p.product_sku) AS distinct_products,
+# MAGIC     SUM(s.num_orders) AS number_of_orders,
+# MAGIC     SUM(s.revenue) AS total_revenue
+# MAGIC FROM monthly_item_sales_optimized s
+# MAGIC JOIN workspace.olist_gold.dim_products p 
+# MAGIC     ON s.product_sku = p.product_sku
+# MAGIC GROUP BY p.category
+# MAGIC ORDER BY total_quantity_sold DESC;

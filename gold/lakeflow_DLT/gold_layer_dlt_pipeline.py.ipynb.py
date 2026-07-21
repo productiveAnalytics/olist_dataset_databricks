@@ -112,6 +112,7 @@ def fact_orders_staging():
     """
     Prepare orders data for SCD Type 2 processing.
     Only non-cancelled orders (from orders__active).
+    Includes order_year and order_month for efficient filtering.
     """
     return (
         dlt.read("workspace.olist_silver.orders__active")
@@ -121,7 +122,9 @@ def fact_orders_staging():
             to_date(col("ordered_at")).alias("order_date"),
             col("order_status"),
             col("total_amount"),
-            col("updated_at")
+            col("updated_at"),
+            col("order_year"),    # Carried from silver for efficient filtering
+            col("order_month")    # Carried from silver for efficient filtering
         )
     )
 
