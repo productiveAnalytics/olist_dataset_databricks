@@ -25,7 +25,7 @@
 # MAGIC Filters:
 # MAGIC * Last 30 days (excluding today)
 # MAGIC * Non-cancelled orders only
-# MAGIC * Delivered items only
+# MAGIC * Items in any status EXCEPT 'Cancelled' (includes Initial, Shipped, Delivered)
 # MAGIC * **Current versions only** (`__CURRENT = TRUE`)
 
 # COMMAND ----------
@@ -51,7 +51,7 @@
 # MAGIC     AND o.order_date >= DATE_SUB(CURRENT_DATE(), 30)
 # MAGIC     AND o.order_date < CURRENT_DATE()
 # MAGIC     AND o.order_status != 'Cancelled'
-# MAGIC     AND oi.item_status = 'Delivered'
+# MAGIC     AND oi.item_status != 'Cancelled'
 # MAGIC GROUP BY 
 # MAGIC     p.product_sku, 
 # MAGIC     p.product_name, 
@@ -90,7 +90,7 @@
 # MAGIC     AND o.order_date >= DATE_SUB(CURRENT_DATE(), 30)
 # MAGIC     AND o.order_date < CURRENT_DATE()
 # MAGIC     AND o.order_status != 'Cancelled'
-# MAGIC     AND oi.item_status = 'Delivered'
+# MAGIC     AND oi.item_status != 'Cancelled'
 # MAGIC GROUP BY 
 # MAGIC     p.product_sku, 
 # MAGIC     p.product_name, 
@@ -128,7 +128,7 @@
 # MAGIC     AND o.order_date >= DATE_SUB(CURRENT_DATE(), 30)
 # MAGIC     AND o.order_date < CURRENT_DATE()
 # MAGIC     AND o.order_status != 'Cancelled'
-# MAGIC     AND oi.item_status = 'Delivered'
+# MAGIC     AND oi.item_status != 'Cancelled'
 # MAGIC GROUP BY p.category
 # MAGIC ORDER BY total_revenue DESC;
 

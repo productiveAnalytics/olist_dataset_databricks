@@ -213,6 +213,3 @@ dlt.apply_changes(
 # MAGIC - Dimensions have validation rules (expect_or_drop)
 # MAGIC - Facts use streaming tables for incremental processing
 # MAGIC - Auto-optimization enabled for Delta tables
-
-# COMMAND ----------
-

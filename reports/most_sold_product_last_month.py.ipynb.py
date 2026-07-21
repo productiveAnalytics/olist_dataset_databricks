@@ -17,8 +17,8 @@
 # MAGIC **Business Logic:**
 # MAGIC - Time filter: Last 30 days from current date
 # MAGIC - Exclude cancelled orders
-# MAGIC - Only count fully delivered items (item_status = 'Delivered')
-# MAGIC - 'Shipped' status excluded (means in-transit, not yet delivered)
+# MAGIC - Count items in any status EXCEPT 'Cancelled' (includes Initial, Shipped, Delivered)
+# MAGIC - Products are considered "sold" even if in-transit or pending
 # MAGIC - Aggregate by product to find highest quantity sold
 
 # COMMAND ----------
@@ -48,7 +48,7 @@
 # MAGIC     o.order_date >= DATE_SUB(CURRENT_DATE(), 30)
 # MAGIC     AND o.order_date < CURRENT_DATE()
 # MAGIC     AND o.order_status != 'Cancelled'
-# MAGIC     AND oi.item_status = 'Delivered'
+# MAGIC     AND oi.item_status != 'Cancelled'
 # MAGIC GROUP BY 
 # MAGIC     p.product_sku, 
 # MAGIC     p.product_name, 
@@ -82,7 +82,7 @@
 # MAGIC     o.order_date >= DATE_SUB(CURRENT_DATE(), 30)
 # MAGIC     AND o.order_date < CURRENT_DATE()
 # MAGIC     AND o.order_status != 'Cancelled'
-# MAGIC     AND oi.item_status = 'Delivered'
+# MAGIC     AND oi.item_status != 'Cancelled'
 # MAGIC GROUP BY 
 # MAGIC     p.product_sku, 
 # MAGIC     p.product_name, 
@@ -115,6 +115,6 @@
 # MAGIC     o.order_date >= DATE_SUB(CURRENT_DATE(), 30)
 # MAGIC     AND o.order_date < CURRENT_DATE()
 # MAGIC     AND o.order_status != 'Cancelled'
-# MAGIC     AND oi.item_status = 'Delivered'
+# MAGIC     AND oi.item_status != 'Cancelled'
 # MAGIC GROUP BY p.category
 # MAGIC ORDER BY total_quantity_sold DESC;
