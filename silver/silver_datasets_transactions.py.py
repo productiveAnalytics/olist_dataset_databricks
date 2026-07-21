@@ -13,7 +13,7 @@
 
 # COMMAND ----------
 
-# DBTITLE 1,Import statements
+# DBTITLE 1,ImporY3llt statements
 from pyspark.sql.functions import col, when, to_utc_timestamp
 
 # COMMAND ----------

@@ -1,4 +1,8 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "5"
+# ///
 # DBTITLE 1,Title
 # MAGIC %md
 # MAGIC # Gold Layer - Dimension: Customers
@@ -98,6 +102,3 @@ print(f"✓ Created {table__gold__dim_customers}")
 # MAGIC   created_at
 # MAGIC FROM workspace.olist_gold.dim_customers
 # MAGIC LIMIT 5;
-
-# COMMAND ----------
-

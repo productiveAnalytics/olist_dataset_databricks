@@ -1,4 +1,8 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "5"
+# ///
 # DBTITLE 1,Title
 # MAGIC %md
 # MAGIC # Gold Layer - Dimension: Products

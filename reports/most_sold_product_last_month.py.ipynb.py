@@ -1,4 +1,8 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "5"
+# ///
 # DBTITLE 1,Title
 # MAGIC %md
 # MAGIC # Report: Most Sold Product in the Last Month
@@ -113,6 +117,3 @@
 # MAGIC     AND oi.item_status IN ('Delivered', 'Shipped')
 # MAGIC GROUP BY p.category
 # MAGIC ORDER BY total_quantity_sold DESC;
-
-# COMMAND ----------
-
