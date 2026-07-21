@@ -3,6 +3,13 @@
 - Refer enhanced dataset for following task in /raw.
 - Two types of datasets: `master_data` (good for *SCD Type 1*) and `transactions_data` (good for *SCD Type 2*). The same structure is uploaded to Databricks volume: `workspace.olist_raw`
 
+----
+
+# Architecture
+![Medallion Architecture](Data_Architecture__olist_dataset_databricks.png)
+
+----
+
 ## Task:
 Design a data model for this scenario: Customers place orders. Each order will have multiple line items for different products, quantities, and statuses. When the complete order is delivered, it is marked as Completed. Also, track the status at the item level.
 
