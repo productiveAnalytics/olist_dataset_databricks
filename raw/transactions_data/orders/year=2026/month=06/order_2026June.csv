@@ -1,5 +1,5 @@
 order_id,customer_id,ordered_at,order_status,subtotal_amount,tax_amount,shipping_fee,total_amount,updated_at
-335,3000,2026-06-01 14:00:00 America/Denver,Complete,0.00,0.00,0.00,0.00,2026-06-09 17:00:00 America/Denver
+335,3000,2026-06-01 14:00:00 America/Denver,Complete,25.99,2.61,2.00,31.60,2026-06-09 17:00:00 America/Denver
 400,4000,2026-05-30 16:15:00 America/Chicago,Cancelled,219.99,0.00,0.00,219.99,2026-06-05 22:22:22 America/Chicago
 444,4040,2026-06-20 10:00:00 America/New_York,Initial,105.97,4.03,10.50,120.50,2026-06-20 10:00:00 America/New_York
 500,5000,2026-06-21 15:30:00 UTC,Complete,199.99,20.01,50.49,270.49,2026-06-23 18:00:00 UTC
