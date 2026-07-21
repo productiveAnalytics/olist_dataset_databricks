@@ -1,0 +1,10 @@
+product_sku,product_name,category,price,stock_quantity,created_at,deleted_at
+100-01,"UnderArmor Jersey - Team USA","Sports/Apparel",25.99,150,2022-01-15,
+100-02,"Nike Running Shoes","Sports/Footwear",199.99,250,2023-02-20,
+100-03,"Adidas Soccer Ball","Sports/Equipment",59.99,199,2026-03-03,
+200-01,"Adidas Jersey - Messi","Sports/Apparel",69.49,100,2025-05-10,
+200-02,"Puma Soccer Cleats","Sports/Footwear",89.99,300,2026-01-15,
+300-01,"Nike Cap - Real Madrid","Sports/Headgear",39.59,75,2024-07-22,
+400-04,"Sweatshirt - Team Egypt","Casual/Apparel",29.99,50,2023-11-11,
+500-05,"Sumo Sword - Japan","Kids/Toys",49.99,120,2025-12-01,2026-05-12
+500-05,"UNQLO - T shirt","Casual/Apparel",49.99,120,2025-12-01,
