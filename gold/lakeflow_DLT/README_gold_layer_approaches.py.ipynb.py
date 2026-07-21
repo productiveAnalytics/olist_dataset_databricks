@@ -8,6 +8,8 @@
 # MAGIC ## 1. Standard Delta Tables (Current Implementation)
 # MAGIC **Target Schema:** `workspace.olist_gold`
 # MAGIC
+# MAGIC **Location:** `gold/standard/`
+# MAGIC
 # MAGIC **Notebooks:** `gold_dataset__dim_*.py.ipynb`, `gold_dataset__fact_*.py.ipynb`
 # MAGIC
 # MAGIC **Characteristics:**
@@ -25,6 +27,8 @@
 # MAGIC
 # MAGIC ## 2. DLT Pipeline with SCD Patterns (Advanced)
 # MAGIC **Target Schema:** `workspace.olist_gold_dlt`
+# MAGIC
+# MAGIC **Location:** `gold/lakeflow_DLT/`
 # MAGIC
 # MAGIC **Notebooks:** `gold_layer_dlt_pipeline.py.ipynb`, `query_scd_type2_tables.py.ipynb`
 # MAGIC
@@ -164,17 +168,41 @@
 # MAGIC %md
 # MAGIC ## File Reference
 # MAGIC
+# MAGIC ### Folder Structure
+# MAGIC ```
+# MAGIC olist_dataset_databricks/
+# MAGIC ├── gold/
+# MAGIC │   ├── standard/              # Standard Delta table approach
+# MAGIC │   │   ├── gold_dataset__dim_customers.py.ipynb
+# MAGIC │   │   ├── gold_dataset__dim_products.py.ipynb
+# MAGIC │   │   ├── gold_dataset__fact_orders.py.ipynb
+# MAGIC │   │   └── gold_dataset__fact_order_items.py.ipynb
+# MAGIC │   │
+# MAGIC │   └── lakeflow_DLT/          # DLT pipeline approach
+# MAGIC │       ├── gold_layer_dlt_pipeline.py.ipynb
+# MAGIC │       ├── query_scd_type2_tables.py.ipynb
+# MAGIC │       └── README_gold_layer_approaches.py.ipynb (this guide)
+# MAGIC │
+# MAGIC └── reports/
+# MAGIC     └── most_sold_product_last_month.py.ipynb
+# MAGIC ```
+# MAGIC
 # MAGIC ### Standard Delta Approach → `workspace.olist_gold`
+# MAGIC **Folder:** `gold/standard/`
 # MAGIC * `gold_dataset__dim_customers.py.ipynb` - Customer dimension
 # MAGIC * `gold_dataset__dim_products.py.ipynb` - Product dimension
 # MAGIC * `gold_dataset__fact_orders.py.ipynb` - Order facts
 # MAGIC * `gold_dataset__fact_order_items.py.ipynb` - Order item facts
-# MAGIC * `reports/most_sold_product_last_month.py.ipynb` - Sample report
 # MAGIC
 # MAGIC ### DLT Approach → `workspace.olist_gold_dlt`
+# MAGIC **Folder:** `gold/lakeflow_DLT/`
 # MAGIC * `gold_layer_dlt_pipeline.py.ipynb` - Main DLT pipeline (deploy as pipeline)
 # MAGIC * `query_scd_type2_tables.py.ipynb` - Query examples and best practices
 # MAGIC * `README_gold_layer_approaches.py.ipynb` - This guide
+# MAGIC
+# MAGIC ### Reports (Query Both Schemas)
+# MAGIC **Folder:** `reports/`
+# MAGIC * `most_sold_product_last_month.py.ipynb` - Sample analytical report
 # MAGIC
 # MAGIC ### Next Steps
 # MAGIC 1. Review both implementations
