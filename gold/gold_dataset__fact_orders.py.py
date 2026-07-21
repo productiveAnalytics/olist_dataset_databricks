@@ -11,11 +11,10 @@
 # MAGIC
 # MAGIC **Sources:** 
 # MAGIC - workspace.olist_silver.orders__active
-# MAGIC - workspace.olist_silver.orders__inactive
 # MAGIC
 # MAGIC **Business Logic:**
 # MAGIC - High-level order metadata
-# MAGIC - Includes both active and cancelled orders for historical completeness
+# MAGIC - Only non-cancelled orders (cancelled orders excluded from gold layer)
 # MAGIC - Order date extracted from ordered_at timestamp
 
 # COMMAND ----------
@@ -61,19 +60,14 @@ print(f"✓ Schema created: {qualified_gold_schema_name}")
 # COMMAND ----------
 
 # DBTITLE 1,Create fact_orders
-# Read silver orders tables (both active and inactive)
+# Read silver orders table (active orders only)
 table__silver__orders_active = f"{CATALOG_NAME}.{SCHEMA_NAME__SILVER}.orders__active"
-table__silver__orders_inactive = f"{CATALOG_NAME}.{SCHEMA_NAME__SILVER}.orders__inactive"
 table__gold__fact_orders = f"{CATALOG_NAME}.{SCHEMA_NAME__GOLD}.fact_orders"
 
 orders_active_df = spark.table(table__silver__orders_active)
-orders_inactive_df = spark.table(table__silver__orders_inactive)
-
-# Union both active and inactive orders
-orders_all_df = orders_active_df.unionByName(orders_inactive_df)
 
 # Transform: Extract order date and select required columns
-fact_orders_df = orders_all_df \
+fact_orders_df = orders_active_df \
   .select(
     col("order_id"),
     col("customer_id"),
@@ -83,9 +77,7 @@ fact_orders_df = orders_all_df \
     col("updated_at")
   )
 
-print(f"Active orders: {orders_active_df.count()}")
-print(f"Inactive orders: {orders_inactive_df.count()}")
-print(f"Total orders: {fact_orders_df.count()}")
+print(f"Active orders: {fact_orders_df.count()}")
 
 # Write to gold layer
 fact_orders_df.write.format("delta") \
