@@ -14,7 +14,7 @@
 # COMMAND ----------
 
 # DBTITLE 1,ImporY3llt statements
-from pyspark.sql.functions import col, when, to_utc_timestamp, year, month
+from pyspark.sql.functions import col, when, to_utc_timestamp, year, month, dayofmonth
 
 # COMMAND ----------
 
@@ -65,24 +65,27 @@ for col_name in datetime_columns:
 # Add derived columns for partitioning and efficient filtering
 orders_df = orders_df \
     .withColumn("order_year", year(col("ordered_at"))) \
-    .withColumn("order_month", month(col("ordered_at")))
+    .withColumn("order_month", month(col("ordered_at"))) \
+    .withColumn("order_day", dayofmonth(col("ordered_at")))
 
-print(f"✓ Added derived columns: order_year, order_month")
+print(f"✓ Added derived columns: order_year, order_month, order_day")
 
 # Split into active and inactive tables
 orders_active_df = orders_df.filter(col("order_status") != "Cancelled")
 orders_inactive_df = orders_df.filter(col("order_status") == "Cancelled")
 
-# Write active orders with partitioning
+# Write active orders with partitioning (overwriteSchema to handle schema changes)
 orders_active_df.write.format("delta") \
   .mode("overwrite") \
-  .partitionBy("order_year", "order_month") \
+  .option("overwriteSchema", "true") \
+  .partitionBy("order_year", "order_month", "order_day") \
   .saveAsTable(table__silver__orders_active)
 
-# Write inactive orders with partitioning
+# Write inactive orders with partitioning (overwriteSchema to handle schema changes)
 orders_inactive_df.write.format("delta") \
   .mode("overwrite") \
-  .partitionBy("order_year", "order_month") \
+  .option("overwriteSchema", "true") \
+  .partitionBy("order_year", "order_month", "order_day") \
   .saveAsTable(table__silver__orders_inactive)
 
 print(f"✓ Created {table__silver__orders_active}: {orders_active_df.count()} rows")
